@@ -29,6 +29,29 @@
 #我想我是活不到这个程序过期的那一天了。
 #祝愿我们都快乐地度过人生中的每一天！
 ##################################################
+
+#上传到GitHub，改用Apache License
+#同样请你给我一封E-mail，如果你使用这个程序。谢谢！
+/*
+ * Copyright 2015 shenlian.de
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Please write me an E-mail(opensource@shenlian.de), if you are using this project
+ * Thanks!
+ */
 ##############################
 #主程序部分
 class S2M
