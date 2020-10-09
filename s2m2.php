@@ -49,7 +49,7 @@
  */
 
 /*
- * Please write me an E-mail(opensource@shenlian.de), if you are using this project
+ * Please write me an E-mail(shenlian@hotmail.com), if you are using this project
  * Thanks!
  */
 ##############################
