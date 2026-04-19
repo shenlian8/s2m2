@@ -6,7 +6,7 @@ The range of the input is from 1901-01-01 to 2100-12-31**
 
 ![s2m2](https://cloud.githubusercontent.com/assets/9590431/6704681/4b013362-cd4c-11e4-9139-d6f97e4e91a5.jpg)
 
-[Demo](http://shenlian.de/s2m2.php)
+[Demo](http://shenban.de/s2m/)
 
 It returns an array:
 
