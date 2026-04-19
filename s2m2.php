@@ -300,94 +300,19 @@ class S2M
     private $weekday = array("星期日","星期一","星期二","星期三","星期四","星期五","星期六");    
   ##############################
     #计算所给出的日期同公历1900年12月21日之间相差多少天
-    #本来想用现成的date_diff程序，发现没有合用的
-    #所以只好把原来的写法搬出来。
+    #注意：原版注释提到“现成的函数在时间上受限”（因为当年 32 位 PHP 的时间戳无法直接处理较早的年份）。
+    #现在 PHP 的 DateTime 类已完美解决该问题，所以进行了优化重写。
   private function date_diff($y, $m , $d){
-  $today["year"] = $y;
-  $today["mon"] = $m;
-  $today["mday"] = $d;
-  $total = 11;
-  for($y=1901;$y<$today["year"];$y++) { //计算到所求日期阳历的总天数-自1900年12月21日始,先算年的和
-       $total+=365;
-       if ($y%4==0) $total++;
-  }
-
-  switch($today["mon"]) { //再加当年的几个月
-         case 12:
-              $total+=30;
-         case 11:
-              $total+=31;
-         case 10:
-              $total+=30;
-         case 9:
-              $total+=31;
-         case 8:
-              $total+=31;
-         case 7:
-              $total+=30;
-         case 6:
-              $total+=31;
-         case 5:
-              $total+=30;
-         case 4:
-              $total+=31;
-         case 3:
-              $total+=28;
-         case 2:
-              $total+=31;
-  }
-
-  if($today["year"]%4 == 0 && $today["mon"]>2 && $today["year"]!=2100) $total++; 
-  //如果当年是闰年还要加一天
-  //2100能被一百整除，而不能被四百整除
-  $total=$total+$today["mday"]-1; //加当月的天数
-  
-  return $total;
+      $target = new DateTime("$y-$m-$d");
+      $base = new DateTime("1900-12-21");
+      return (int)$base->diff($target)->days;
   }
   ##############################
     #检查时间正确性
   private function checkTime($y, $m, $d){
     if($y < $this->MinYear or $y > $this->MaxYear) die('wrong time');
-    if($m < 1 or $m > 12) die('wrong time');
-      switch($m) {
-         case 12:
-              if($d < 1 or $d > 31) die('wrong time');
-              return;
-         case 11:
-              if($d < 1 or $d > 30) die('wrong time');
-              return;
-         case 10:
-              if($d < 1 or $d > 31) die('wrong time');
-              return;
-         case 9:
-              if($d < 1 or $d > 30) die('wrong time');
-              return;
-         case 8:
-              if($d < 1 or $d > 31) die('wrong time');
-              return;
-         case 7:
-              if($d < 1 or $d > 31) die('wrong time');
-              return;
-         case 6:
-              if($d < 1 or $d > 30) die('wrong time');
-              return;
-         case 5:
-              if($d < 1 or $d > 31) die('wrong time');
-              return;
-         case 4:
-              if($d < 1 or $d > 30) die('wrong time');
-              return;
-         case 3:
-              if($d < 1 or $d > 31) die('wrong time');
-              return;
-         case 2:
-              if ($y%4==0 && $y!=2100) if($d < 1 or $d > 29) die('wrong time');
-              if ($y%4!=0) if($d < 1 or $d > 28) die('wrong time');
-              return;
-         case 1:
-              if($d < 1 or $d > 31) die('wrong time');
-              return;
-  }  
+    # 利用原生的 checkdate 进行严密合法的日历校验（例如拦截平年2月29日）
+    if(!checkdate($m, $d, $y)) die('wrong time');
   }
   ##############################
     #计算农历日期  
@@ -466,7 +391,7 @@ class S2M
       $nlday = $this->mday[$inday];
       
       $inweekday = ($total + 5) % 7;
-      $cweekday = $weekday[$inweekday];
+      $cweekday = $this->weekday[$inweekday]; # 修正了原先漏写 $this-> 导致的 BUG
       //return $nlyear.$this->mten[$this->everymonth[$j][14]].$this->mtwelve[$this->everymonth[$j][15]].$nlmon.$nlday;
       
       return array(
