@@ -24,6 +24,14 @@ python -c "import json; from s2m2 import S2M; res = json.loads(S2M().getMDate(20
 python -c "import json; from s2m2 import S2M; res = json.loads(S2M().getMDate()); print(json.dumps(res, indent=4, ensure_ascii=False))"
 ```
 
+### 3. 农历反推公历 (逆向查询)
+如果用户给出的是一个**农历日期**，要求你算出它对应的公历是哪一天（例如“1995年闰八月十五对应的阳历是哪天？”）：
+你可以使用底层的 `getGregorianDate(l_year, l_month, l_day, is_leap_month=False)` 方法：
+```bash
+python -c "import json; from s2m2 import S2M; res = json.loads(S2M().getGregorianDate(1995, 8, 15, is_leap_month=True)); print(json.dumps(res, indent=4, ensure_ascii=False))"
+```
+> **注意**：传给 `getGregorianDate` 的参数必须是纯数字（年份、月份1-12、日期1-30）。如果用户强调是**闰月**，必须将 `is_leap_month=True` 传入！返回值依然是那个包含了所有公历、农历和干支信息的完整大 JSON。
+
 ## 返回字段说明 (Output Definitions)
 
 调用该脚本后，系统会返回标准的 JSON 结构，你可以使用其中的对应中文字段来为用户提供生动易读的回复。

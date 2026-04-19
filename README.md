@@ -23,12 +23,16 @@ import json
 
 s2m = S2M()
 
-# 返回传入日期的 JSON 格式农历结果
+# 【正向】返回传入公历日期的 JSON 格式农历结果
 result = s2m.getMDate(1976, 11, 13) 
 print(json.dumps(json.loads(result), indent=4, ensure_ascii=False))
 
 # 不传任何参数时，默认获取操作系统今天的农历日期
 today_result = s2m.getMDate() 
+
+# 【反向】输入农历参数 (年, 月, 日, 是否闰月=False)，返回大 JSON，内含推算出的公历日期
+reversed_result = s2m.getGregorianDate(1976, 9, 22)
+print(json.loads(reversed_result)['gregorian_day']) # 输出 13
 ```
 
 ### JSON 返回格式含义 (Output Definition)
