@@ -379,5 +379,76 @@ class S2M:
             "weekday": inweekday,    # 数字星期日期，0为星期天
             "cweekday": cweekday     # 中文星期日期
         }
-        
         return json.dumps(result, ensure_ascii=False)
+
+    ##############################
+    # 农历日期反推公历日期
+    def getGregorianDate(self, l_year, l_month, l_day, is_leap_month=False):
+        """
+        根据农历反向推算对应的公历（阳历）日期
+        
+        :param l_year: 农历年 (1901-2100)
+        :param l_month: 农历月 (1-12)
+        :param l_day: 农历日 (1-30)
+        :param is_leap_month: 布尔值，标识请求的月份是否为这一年的闰月
+        :return: JSON 字符串，包含 g_year, g_month, g_day
+        """
+        from datetime import date, timedelta
+        
+        if l_year < self.MinYear or l_year > self.MaxYear:
+            if l_year == 1900 and l_month in (11, 12):
+                pass # 放行 1900年11月、12月
+            else:
+                raise ValueError("wrong time: 农历年份超出支持范围 (1901-2100)")
+            
+        # 农历1900年11月初一 对应的公历是 1900年12月22日
+        base_date = date(1900, 12, 22)
+        total_days = 0
+        
+        # 1. 累积历年总天数 (从 1900 年开始)
+        for y in range(1900, l_year):
+            idx = y - 1900
+            if idx == 0:
+                # 1900年只剩下11月和12月包含在日历内（分别对应的索引是12和13，因为前面有0占位）
+                total_days += sum(self.everymonth[0][1:14])
+            else:
+                for m in range(1, 14): 
+                    total_days += self.everymonth[idx][m]
+                
+        # 2. 累积当年月份天数
+        curr_idx = l_year - 1900
+        leap_month = self.everymonth[curr_idx][0]
+        
+        # 校验目标请求是否合法
+        if is_leap_month and leap_month != l_month:
+            raise ValueError(f"wrong time: {l_year}年没有闰{l_month}月")
+            
+        # 决定我们要遍历到数组的第几个元素(包含当月)
+        target_i = l_month
+        if leap_month != 0:
+            if l_month > leap_month:
+                target_i = l_month + 1
+            elif l_month == leap_month and is_leap_month:
+                target_i = l_month + 1
+                
+        # 累加前 target_i - 1 个月的天数
+        # 1900年的情况特殊，目标月如果是11月(索引12)，之前没有月需要加
+        # 目标月如果是12月(索引13)，只需要加上11月(索引12)
+        start_m = 1
+        if curr_idx == 0:
+            start_m = 12
+            
+        for i in range(start_m, target_i):
+            total_days += self.everymonth[curr_idx][i]
+                
+        # 3. 追加当月天数
+        target_month_days = self.everymonth[curr_idx][target_i]
+        if l_day < 1 or l_day > target_month_days:
+            raise ValueError(f"wrong time: 所输农历日期有误，该月只有 {target_month_days} 天")
+            
+        total_days += (l_day - 1)
+        
+        target_gregorian = base_date + timedelta(days=total_days)
+        
+        # 将求得的公历日期传入正向计算的函数中，从而复用返回统一的完整大 JSON
+        return self.getMDate(target_gregorian.year, target_gregorian.month, target_gregorian.day)

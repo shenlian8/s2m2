@@ -71,5 +71,25 @@ class TestS2M2(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "date out of range"):
             self.s2m.getMDate(2101, 1, 1)
 
+    def test_get_gregorian_date(self):
+        """测试由农历反推公历的方法"""
+        # 测试：农历 1976年 九月 廿二 -> 预期公历 1976-11-13
+        res_json = self.s2m.getGregorianDate(1976, 9, 22)
+        res = json.loads(res_json)
+        self.assertEqual(res['gregorian_year'], 1976)
+        self.assertEqual(res['gregorian_month'], 11)
+        self.assertEqual(res['gregorian_day'], 13)
+        
+        # 测试包含闰月（2020年 闰四月 初一，对应公历 2020-05-23）
+        res_json = self.s2m.getGregorianDate(2020, 4, 1, is_leap_month=True)
+        res = json.loads(res_json)
+        self.assertEqual(res['gregorian_year'], 2020)
+        self.assertEqual(res['gregorian_month'], 5)
+        self.assertEqual(res['gregorian_day'], 23)
+
+        # 恶意测试不存在的闰月（2020年只有闰4月，没有闰3月）
+        with self.assertRaisesRegex(ValueError, "没有闰3月"):
+            self.s2m.getGregorianDate(2020, 3, 1, is_leap_month=True)
+
 if __name__ == '__main__':
     unittest.main()
